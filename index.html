@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta 1 - Dashboard Colaborativo</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        
+        .card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; transition: all 0.3s ease; }
+        .title { color: #1e293b; font-size: 1.25rem; margin-bottom: 16px; font-weight: 600; }
+        
+        .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 50px; font-size: 0.95rem; font-weight: 500; margin-bottom: 20px; width: 100%; transition: all 0.3s ease; }
+        .fresh { background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .stale { background-color: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+        
+        .progress-container { background: #e2e8f0; height: 6px; border-radius: 3px; width: 100%; margin-bottom: 24px; overflow: hidden; }
+        .progress-bar { background: #10b981; height: 100%; width: 100%; transition: width 1s linear, background-color 0.3s ease; }
+        
+        .btn { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { background: #1d4ed8; }
+        .btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2 class="title">Sincronización de Datos</h2>
+        <div id="status" class="status-badge fresh">Cargando...</div>
+        
+        <div class="progress-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+
+        <button id="refresh-btn" class="btn">
+            🔄 Actualizar para el Equipo
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusBox = document.getElementById('status');
+            const pBar = document.getElementById('progress');
+            const btn = document.getElementById('refresh-btn');
+            
+            const STALE_TIME = 60000; 
+            let lastFetch = Date.now();
+
+            function updateUI() {
+                const elapsed = Date.now() - lastFetch;
+                const remaining = Math.max(0, STALE_TIME - elapsed);
+                const pct = (remaining / STALE_TIME) * 100;
+                
+                pBar.style.width = `${pct}%`;
+
+                if (elapsed > STALE_TIME) {
+                    statusBox.className = "status-badge stale";
+                    statusBox.innerText = "❌ Datos desactualizados de la red";
+                    pBar.style.backgroundColor = "#ef4444";
+                } else {
+                    statusBox.className = "status-badge fresh";
+                    statusBox.innerText = `🟢 Datos en la nube: ${Math.round(remaining / 1000)}s restantes`;
+                    pBar.style.backgroundColor = "#10b981";
+                }
+            }
+
+            btn.addEventListener('click', () => {
+                lastFetch = Date.now();
+                updateUI();
+            });
+
+            setInterval(updateUI, 1000);
+            updateUI();
+        });
+    </script>
+</body>
+</html>
 
